@@ -9,6 +9,18 @@
 #Make it general-purpose#
 #########TODO############
 
+###############
+#CONFIGURATION#
+###############
+
+#The following is intended for situations where your HTPC software runs as a different user/group than who ran this script
+USER="master" #who you want to own the output
+GROUP="master" #what group owns the output
+
+############
+#END CONFIG#
+############
+
 SRC=./*
 IFS='
 '
@@ -48,4 +60,4 @@ do
 	((COUNT+=1))
 done
 
-chown -R master:master ./tmp
+chown -R $USER:$GROUP ./tmp

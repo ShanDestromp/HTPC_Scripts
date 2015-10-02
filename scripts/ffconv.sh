@@ -51,6 +51,10 @@ END="/mnt/tardis/conv/temp/" #Post-compress movie destination
 
 SS="1675" #Auto-Crop settings
 VFRAMES="7005" #Auto-Crop settings
+
+#The following is intended for situations where your HTPC software runs as a different user/group than who ran this script
+USER="master" #who you want to own the output
+GROUP="master" #what group owns the output
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
 #@@@@@@# END CONFIGURATION @@@@@@@@#
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
@@ -99,7 +103,7 @@ do
 		fi
 		
 		$FF -analyzeduration 500M -probesize 500M -i "${I}" $CROP $ENC_OPTS $QUAL -f $OUT_TYPE "$OUT_DIR/$OUT.mkv"
-		$CHOWN -R master:master "$OUT_DIR"
+		$CHOWN -R $USER:$GROUP "$OUT_DIR"
 		
 		if [ "$MODE" = "movie" ] 
 		then
