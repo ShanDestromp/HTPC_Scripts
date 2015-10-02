@@ -1,13 +1,21 @@
 #!/bin/bash
 
+#AUTH: Shan Destromp
+#FILE: concat.sh
+#LICENSE: GNU GPL v2.0
+#SOURCE HOMEPAGE: https://github.com/ShanDestromp/HTPC_Scripts
+
+#########TODO############
+#Make it general-purpose#
+#########TODO############
+
 SRC=./*
 IFS='
 '
 FF=`which ffmpeg`
 
 COUNT=1
-SERIES="Formula 1"
-
+SERIES=""
 
 for I in *
 do
