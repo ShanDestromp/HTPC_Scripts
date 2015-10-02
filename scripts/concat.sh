@@ -5,9 +5,21 @@
 #LICENSE: GNU GPL v2.0
 #SOURCE HOMEPAGE: https://github.com/ShanDestromp/HTPC_Scripts
 
-#########TODO############
-#Make it general-purpose#
-#########TODO############
+#################################################
+#USEAGE
+# /path/to/concat.sh 
+# 
+# Script assumes that all files are named in sequence and combines in 
+# sequence in pairs (eg files 1 and 2 combine to make A; 3 and 4 make B etc).
+# It also requires that your local ffmpeg has 'concat' compiled in; and there
+# are limitations to what file formats / encoders this works with.  Typically any AVI
+# files will work fine.  Read more at https://trac.ffmpeg.org/wiki/Concatenate
+#
+# The script attempts to find the "true" filename by searching for differences between 1 & 2;
+# dropping whatever is changed and appending 'JOINED' at the end before the file extension.
+# For example MyShow_Part1.mkv and MyShow_Part2.mkv would result in ./JOINED/MyShow_JOINED.mkv
+#
+# Not particularly clean but it gets the job done.
 
 ###############
 #CONFIGURATION#
@@ -25,39 +37,39 @@ SRC=./*
 IFS='
 '
 FF=`which ffmpeg`
+CHOWN=`which chown`
 
-COUNT=1
-SERIES=""
+
+COUNT=1 #internal counter
 
 for I in *
 do
-
-	if [ ! -d "./tmp" ]
+	#Makes joined folder in current dir
+	if [ ! -d "./JOINED" ]
 	then
-		mkdir "./tmp"
+		mkdir "./JOINED"
 	fi
 
-	EXT=${I##*.}
-	
-	RACE=`echo ${I}| cut -d "-" -f 3`
-	RACE=${RACE%\.*}
-	RACE=$(sed -e 's/^[[:space:]]*//' <<<"$RACE")
-	
-	SSN=`echo ${I}| cut -d "-" -f 2`
-	SSN=${SSN%\.*}
-	SSN=$(sed -e 's/^[[:space:]]*//' <<<"$SSN")
-	
-	O=$SERIES" - "$SSN" - "$RACE"."$EXT
-	
+	#For every 2 files, join them
 	if (( $COUNT % 2 == 0 )) 
 	then
-		$FF -i concat:"${TI}|${I}" -c copy "./tmp/${O}"
-		TI=""
+
+		#Gets our file extension
+		EXT=${I##*.}
+
+		#Finds commanality between two filenames, removes "PART" and "CD" from filename, and trims excess whitespace
+		O=`printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' | sed -e 's/PART//gI' -e 's/CD//gI' | xargs`
+		O=$O"_JOINED."$EXT #Our new filename
+
+		$FF -i concat:"${TI}|${I}" -c copy "./JOINED/${O}"
+		TI="" #Clears our temporary pointer
+	#Assign temporary name for first file
 	else 
 		TI=${I}
 	fi
-	
+	#Increment counter
 	((COUNT+=1))
 done
 
-chown -R $USER:$GROUP ./tmp
+#Assigns ownership of the output folder and contents
+$CHOWN -R $USER:$GROUP ./JOINED
