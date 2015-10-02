@@ -41,8 +41,9 @@ GROUP="master" #what group owns the output
 
 MV=`which mv`
 MK=`which mkdir`
-CWD=`which pwd`
+PWD=`which pwd`
 CHOWN=`which chown`
+RM=`which rmdir`
 
 IFS='
 '
@@ -82,3 +83,9 @@ do
 done
 
 $CHOWN -R $USER:$GROUP $ROOT"/"$SERIES
+
+#Gets dir we just renamed and removes the now empty directory
+CWD=`$PWD`
+$RM $CWD
+
+exit 0
