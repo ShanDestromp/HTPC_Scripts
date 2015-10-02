@@ -55,6 +55,7 @@ VFRAMES="7005" #Auto-Crop settings
 #The following is intended for situations where your HTPC software runs as a different user/group than who ran this script
 USER="master" #who you want to own the output
 GROUP="master" #what group owns the output
+
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
 #@@@@@@# END CONFIGURATION @@@@@@@@#
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
@@ -64,9 +65,9 @@ CHOWN=`which chown` #locates chown command
 MV=`which mv` #locates move command
 
 
-ENC_OPTS="$VID_OPTS $AUD_OPTS $SUB_OPTS $OTH_OPTS" #All encoding options
-MODE="$(echo $1 | tr '[A-Z]' '[a-z]')" #TV or Movies lowercase for ease
-IFCROP="$(echo $2 | tr '[A-Z]' '[a-z]')"
+ENC_OPTS="$VID_OPTS $AUD_OPTS $SUB_OPTS $OTH_OPTS" #All encoding options grouped together
+MODE="$(echo $1 | tr '[A-Z]' '[a-z]')" #mode in lowercase for ease
+IFCROP="$(echo $2 | tr '[A-Z]' '[a-z]')" #lowercase 2nd var to check if cropping
 
 for I in ./*
 do
@@ -81,11 +82,15 @@ do
 		then
 			echo "You must pass a MODE:  series or movie" 
 			exit 1
+
+		#Makes the movie output folder based upon initial filename
 		elif [ "$MODE" = "movie" ] 
 		then	
 			OUT=${OUT::-4} #Trims t## at the end of the name
 			OUT_DIR="./$OUT"
 			mkdir "$OUT_DIR"
+
+		#it's a TV show, check for a ./converted folder and make as needed
 		elif [ "$MODE" = "series" ] && [ ! -d "./converted" ]
 		then
 			OUT_DIR="converted"
@@ -94,6 +99,7 @@ do
 			OUT_DIR="converted"
 		fi
 		
+		#If Cropping get crop amount, else no crop
 		if [ "$IFCROP" = "crop" ]
 		then 
 			CROP=`${FF} -analyzeduration 500M -probesize 500M -ss ${SS} -i "${I}" -vframes ${VFRAMES} -t 1 -vf "cropdetect=24:16:0" -f null - 2>&1 | awk '/crop/ { print $NF }' | tail -1`
@@ -102,13 +108,16 @@ do
 			CROP=""
 		fi
 		
+		#Process the file based upon settings
 		$FF -analyzeduration 500M -probesize 500M -i "${I}" $CROP $ENC_OPTS $QUAL -f $OUT_TYPE "$OUT_DIR/$OUT.mkv"
-		$CHOWN -R $USER:$GROUP "$OUT_DIR"
+		$CHOWN -R $USER:$GROUP "$OUT_DIR" #change ownership of the file
 		
+		#Move the movie folder to it's home
 		if [ "$MODE" = "movie" ] 
 		then
 			$MV "$OUT_DIR" "$END/$OUT_DIR"
 		fi
+	#no files found
 	else
 		echo "Nothing to do in `pwd`"
 		exit 0
