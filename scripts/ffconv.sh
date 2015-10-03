@@ -49,8 +49,9 @@ OTH_OPTS='-map 0'
 
 END="/mnt/tardis/conv/temp/" #Post-compress movie destination
 
-SS="1675" #Auto-Crop settings
-VFRAMES="7005" #Auto-Crop settings
+#CROP SETTINGS
+ACSS="600" #How far in to start scanning in seconds
+ACTL="120" #How long to scan in seconds
 
 #The following is intended for situations where your HTPC software runs as a different user/group than who ran this script
 USER="master" #who you want to own the output
@@ -104,25 +105,22 @@ do
 		#If Cropping get crop amount, else no crop
 		if [ "$IFCROP" = "crop" ]
 		then 
-			CROP=`${FF} -analyzeduration 500M -probesize 500M -ss ${SS} -i "${I}" -vframes ${VFRAMES} -t 1 -vf "cropdetect=24:16:0" -f null - 2>&1 | awk '/crop/ { print $NF }' | tail -1`
-			CROP=" -vf ${CROP}"
+			CROP=`$FF -ss $ACSS -i "$I" -f matroska -t $ACTL -an -vf cropdetect=24:16:0 -y -crf 51 -preset ultrafast /dev/null 2>&1 | grep -o crop=.* | sort -bh | uniq -c | sort -bh | tail -n1 | grep -o crop=.*`
+			CROP=" -vf $CROP"
+			echo $CROP
 		else
 			CROP=""
 		fi
 		
 		#Process the file based upon settings
-		$FF -analyzeduration 500M -probesize 500M -i "${I}" $CROP $ENC_OPTS $QUAL -f $OUT_TYPE "$OUT_DIR/$OUT.mkv"
-		$CHOWN -R $USER:$GROUP "$OUT_DIR" #change ownership of the file
+		$FF -analyzeduration 500M -probesize 500M -i "$I" $CROP $ENC_OPTS $QUAL '-f' $OUT_TYPE $OUT_DIR/"$OUT.mkv"
+		$CHOWN '-R' $USER:$GROUP "$OUT_DIR" #change ownership of the file
 		
 		#Move the movie folder to it's home
 		if [ "$MODE" = "movie" ] 
 		then
 			$MV "$OUT_DIR" "$END/$OUT_DIR"
 		fi
-	#no files found
-	else
-		echo "Nothing to do in `pwd`"
-		exit 0
 	fi
 done
 exit 0
