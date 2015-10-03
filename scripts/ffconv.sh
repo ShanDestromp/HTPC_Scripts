@@ -105,7 +105,7 @@ do
 		#If Cropping get crop amount, else no crop
 		if [ "$IFCROP" = "crop" ]
 		then 
-			CROP=`$FF -ss $ACSS -i "$I" -f matroska -t $ACTL -an -vf cropdetect=24:16:0 -y -crf 51 -preset ultrafast /dev/null 2>&1 | grep -o crop=.* | sort -bh | uniq -c | sort -bh | tail -n1 | grep -o crop=.*`
+			CROP=`$FF -ss $ACSS -i "$I" -f matroska -t $ACTL -an -vf cropdetect -y -crf 51 -preset ultrafast /dev/null 2>&1 | grep -o crop=.* | sort -bh | uniq -c | sort -bh | tail -n1 | grep -o crop=.*`
 			CROP=" -vf $CROP"
 			echo $CROP
 		else
@@ -113,7 +113,7 @@ do
 		fi
 		
 		#Process the file based upon settings
-		$FF -analyzeduration 500M -probesize 500M -i "$I" $CROP $ENC_OPTS $QUAL '-f' $OUT_TYPE $OUT_DIR/"$OUT.mkv"
+		$FF -analyzeduration 500M -probesize 500M -i "$I" $CROP $ENC_OPTS $QUAL '-f' $OUT_TYPE "$OUT_DIR/$OUT.mkv"
 		$CHOWN '-R' $USER:$GROUP "$OUT_DIR" #change ownership of the file
 		
 		#Move the movie folder to it's home
