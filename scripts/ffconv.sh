@@ -69,6 +69,13 @@ ENC_OPTS="$VID_OPTS $AUD_OPTS $SUB_OPTS $OTH_OPTS" #All encoding options grouped
 MODE="$(echo $1 | tr '[A-Z]' '[a-z]')" #mode in lowercase for ease
 IFCROP="$(echo $2 | tr '[A-Z]' '[a-z]')" #lowercase 2nd var to check if cropping
 
+#Have to pass a mode otherwise we don't know what to do
+if [ "$MODE" != "series" ] && [ "$MODE" != "movie" ]
+then
+	echo "You must pass a MODE:  'series' or 'movie'" 
+	exit 1
+fi
+
 for I in ./*
 do
 	OUT=${I%\.*} #Removes file extension
@@ -78,13 +85,8 @@ do
 	#Ensures that we don't try and do anything with a void file, cwd or cwd-1
 	if [ "$OUT" != "" ] && [ "$OUT" != "." ] && [ "$OUT" != ".." ]
 	then
-		if [ "$MODE" != "series" ] && [ "$MODE" != "movie" ]
-		then
-			echo "You must pass a MODE:  series or movie" 
-			exit 1
-
 		#Makes the movie output folder based upon initial filename
-		elif [ "$MODE" = "movie" ] 
+		if [ "$MODE" = "movie" ] 
 		then	
 			OUT=${OUT::-4} #Trims t## at the end of the name
 			OUT_DIR="./$OUT"
