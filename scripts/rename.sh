@@ -49,7 +49,7 @@ IFS='
 '
 
 SERIES=$1
-SEASON=$2
+SEASON=$(printf "%02d" $2)
 
 #Checks to see if an episode-starting number was given, otherwise assume we start with episode 1
 if [[ $3 ]] 
@@ -66,25 +66,20 @@ do
 	EPISODE=$(printf "%02d" $COUNT)
 	O=$SERIES" S"$SEASON"E"$EPISODE"."$EXT #Format of the output file eg "Family Guy S01E01.mkv"
 	
-	if [ ! -d $ROOT"/"$SERIES ] #No folder for the show, make it
+	if	[ ! -d "$ROOT/$SERIES/Season $SEASON" ] #No folder for the season, make it
 	then
-		$MK $ROOT"/"$SERIES
-	fi
-	if	[ ! -d $ROOT"/"$SERIES"/Season "$SEASON ] #No folder for the season, make it
-	then
-		$MK $ROOT"/"$SERIES"/Season "$SEASON
+		$MK '-p' "$ROOT/$SERIES/Season $SEASON"
 	fi
 
 	$MV "./${I}" "${ROOT}/${SERIES}/Season ${SEASON}/$O" #Performs the move and rename
-
 	((COUNT+=1)) #Next episode
 done
 
 #Changes ownership of the output
-$CHOWN -R $USER:$GROUP $ROOT"/"$SERIES
+$CHOWN '-R' $USER:$GROUP "$ROOT/$SERIES"
 
 #Gets dir we just renamed and removes the now empty directory
 CWD=`$PWD`
-$RM $CWD
+$RM "$CWD"
 
 exit 0
