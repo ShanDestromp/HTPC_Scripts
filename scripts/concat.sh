@@ -60,9 +60,8 @@ do
 		#Finds commanality between two filenames, removes "PART" and "CD" from filename, and trims excess whitespace
 		O=`printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' -e 's/PART//gI' -e 's/CD//gI' | xargs`
 		O=$O"_JOINED."$EXT #Our new filename
-		#echo $TI $I
-		echo $O
-		#$FF -i concat:"${TI}|${I}" -acodec copy -vcodec copy "./JOINED/${O}"
+				
+		$FF -i concat:"${TI}|${I}" -acodec copy -vcodec copy "./JOINED/${O}"
 		TI="" #Clears our temporary pointer
 	#Assign temporary name for first file
 	else 
