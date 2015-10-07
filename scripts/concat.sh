@@ -42,26 +42,27 @@ CHOWN=`which chown`
 
 COUNT=1 #internal counter
 
-for I in *
-do
-	#Makes joined folder in current dir
-	if [ ! -d "./JOINED" ]
-	then
-		mkdir "./JOINED"
-	fi
+#Makes joined folder in current dir
+if [ ! -d "./JOINED" ]
+then
+	mkdir "./JOINED"
+fi
 
+for I in *.* #requires the file to have an extension - helps exclude directories and merging the wrong files
+do
 	#For every 2 files, join them
 	if (( $COUNT % 2 == 0 )) 
 	then
-
+	
 		#Gets our file extension
 		EXT=${I##*.}
 
 		#Finds commanality between two filenames, removes "PART" and "CD" from filename, and trims excess whitespace
-		O=`printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' | sed -e 's/PART//gI' -e 's/CD//gI' | xargs`
+		O=`printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' -e 's/PART//gI' -e 's/CD//gI' | xargs`
 		O=$O"_JOINED."$EXT #Our new filename
-
-		$FF -i concat:"${TI}|${I}" -c copy "./JOINED/${O}"
+		#echo $TI $I
+		echo $O
+		#$FF -i concat:"${TI}|${I}" -acodec copy -vcodec copy "./JOINED/${O}"
 		TI="" #Clears our temporary pointer
 	#Assign temporary name for first file
 	else 
