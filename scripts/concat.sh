@@ -7,9 +7,9 @@
 
 #################################################
 #USEAGE
-# /path/to/concat.sh 
-# 
-# Script assumes that all files are named in sequence and combines in 
+# /path/to/concat.sh
+#
+# Script assumes that all files are named in sequence and combines in
 # sequence in pairs (eg files 1 and 2 combine to make A; 3 and 4 make B etc).
 # It also requires that your local ffmpeg has 'concat' compiled in; and there
 # are limitations to what file formats / encoders this works with.  Typically any AVI
@@ -33,42 +33,40 @@ GROUP="master" #what group owns the output
 #END CONFIG#
 ############
 
-SRC=./*
+SRC=./* # Unused variable
 IFS='
 '
-FF=`which ffmpeg`
-CHOWN=`which chown`
-
+FF=$( which ffmpeg )
+CHOWN=$( which chown )
 
 COUNT=1 #internal counter
 
 #Makes joined folder in current dir
-if [ ! -d "./JOINED" ]
-then
+if [ ! -d "./JOINED" ]; then
 	mkdir "./JOINED"
 fi
 
-for I in *.* #requires the file to have an extension - helps exclude directories and merging the wrong files
-do
-	#For every 2 files, join them
-	if (( $COUNT % 2 == 0 )) 
-	then
-	
-		#Gets our file extension
-		EXT=${I##*.}
+for I in *; do
+	if [ -f "$I" ];	then
+		#For every 2 files, join them
+		if (( $COUNT % 2 == 0 )); then
 
-		#Finds commanality between two filenames, removes "PART" and "CD" from filename, and trims excess whitespace
-		O=`printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' -e 's/PART//gI' -e 's/CD//gI' | xargs`
-		O=$O"_JOINED."$EXT #Our new filename
-				
-		$FF -i concat:"${TI}|${I}" -acodec copy -vcodec copy "./JOINED/${O}"
-		TI="" #Clears our temporary pointer
-	#Assign temporary name for first file
-	else 
-		TI=${I}
+			#Gets our file extension
+			EXT=${I##*.}
+
+			#Finds commanality between two filenames, removes "PART" and "CD" from filename, and trims excess whitespace
+			OUTPUT_NAME=$( printf "%s\n%s\n" "$TI" "$I" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/' -e 's/PART//gI' -e 's/CD//gI' -e 's/[[:space:]]*$//' )
+			OUTPUT_NAME=$OUTPUT_NAME"_JOINED."$EXT #Our new filename
+
+			$FF -i concat:"${TI}|${I}" -c copy "./JOINED/${OUTPUT_NAME}"
+			TI="" #Clears our temporary pointer
+		#Assign temporary name for first file
+		else
+			TI=${I}
+		fi
+		#Increment counter
+		((COUNT+=1))
 	fi
-	#Increment counter
-	((COUNT+=1))
 done
 
 #Assigns ownership of the output folder and contents
