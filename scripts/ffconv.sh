@@ -22,7 +22,7 @@
 # the CROP flag enables automatic cropping of the source media.  Many movies that are filmed in anything other than 4:3
 # or 16:9 have black bars *embedded* into the media.  This attempts to crop that out to save a bit of space but is unreliable
 # When using the crop flag ALWAYS CHECK THE OUTPUT; if it is incorrect (over / under cropped) change "-ss" and "-vframes"
-# near the bottom of the configuration.  The scripted-defaults are 1675 and 7005 respectively; these indicate how far into the 
+# near the bottom of the configuration.  The scripted-defaults are 1675 and 7005 respectively; these indicate how far into the
 # video (in frames) and and how long to scan while auto-detecting.
 
 ##########
@@ -73,7 +73,7 @@ IFCROP="$(echo $2 | tr '[A-Z]' '[a-z]')" #lowercase 2nd var to check if cropping
 #Have to pass a mode otherwise we don't know what to do
 if [ "$MODE" != "series" ] && [ "$MODE" != "movie" ]
 then
-	echo "You must pass a MODE:  'series' or 'movie'" 
+	echo "You must pass a MODE:  'series' or 'movie'"
 	exit 1
 fi
 
@@ -87,8 +87,8 @@ do
 	if [ "$OUT" != "" ] && [ "$OUT" != "." ] && [ "$OUT" != ".." ]
 	then
 		#Makes the movie output folder based upon initial filename
-		if [ "$MODE" = "movie" ] 
-		then	
+		if [ "$MODE" = "movie" ]
+		then
 			OUT=${OUT::-4} #Trims t## at the end of the name
 			OUT_DIR="./$OUT"
 			mkdir "$OUT_DIR"
@@ -101,23 +101,23 @@ do
 		else
 			OUT_DIR="converted"
 		fi
-		
+
 		#If Cropping get crop amount, else no crop
 		if [ "$IFCROP" = "crop" ]
-		then 
+		then
 			CROP=`$FF -ss $ACSS -i "$I" -f matroska -t $ACTL -an -vf cropdetect -y -crf 51 -preset ultrafast /dev/null 2>&1 | grep -o crop=.* | sort -bh | uniq -c | sort -bh | tail -n1 | grep -o crop=.*`
 			CROP=" -vf $CROP"
 			echo $CROP
 		else
 			CROP=""
 		fi
-		
+
 		#Process the file based upon settings
 		$FF -analyzeduration 500M -probesize 500M -i "$I" $CROP $ENC_OPTS $QUAL '-f' $OUT_TYPE "$OUT_DIR/$OUT.mkv"
 		$CHOWN '-R' $USER:$GROUP "$OUT_DIR" #change ownership of the file
-		
+
 		#Move the movie folder to it's home
-		if [ "$MODE" = "movie" ] 
+		if [ "$MODE" = "movie" ]
 		then
 			$MV "$OUT_DIR" "$END/$OUT_DIR"
 		fi
