@@ -7,4 +7,6 @@ USE AT YOUR OWN RISK; MANY ASSUMPTIONS WERE MADE THOUGH I'M WORKING ON TRYING TO
 
 Both ffconv and concat REQUIRE ffmpeg installed; and concat needs ffmpeg concatenation built in as well.
 
+whisp utilizes the whisper AI; however it has only been tested with https://github.com/SYSTRAN/faster-whisper and assumes a NVIDIA gpu for use.
+
 Scriptes released under GPL v2.  Please see LICENSE for details
